@@ -13,22 +13,20 @@
     <script src="https://kit.fontawesome.com/3dbdada859.js" crossorigin="anonymous"></script>
 </head>
 <body>
-
 <aside>
     <span class="logo">Photo</span>
     <h3>Навигация</h3>
     <ul>
-    <a href=""><li><i class="fa-solid fa-house-user"></i>Главная</li></a>
-    <span>{{ user.nickname }}</span>
-    {% if current_user %}
-        <a href="/logout" class="btn">Выйти</a>
-    {% else %}
-        <a href="/login" class="btn">Логин</a>
-    {% endif %}
-</ul>
+        <li><a href="/"><i class="fa-solid fa-house-user"></i>Главная</a></li>
+<span>{{current_user.nickname}}</span>
+        {% if current_user.is_authenticated %}
+
+            <li><a href="/logout" class="btn">Выйти</a></li>
+        {% else %}
+            <li><a href="/login" class="btn">Логин</a></li>
+        {% endif %}
+    </ul>
 </aside>
-
-
 <main>
 {% block content %}
     {% endblock %}

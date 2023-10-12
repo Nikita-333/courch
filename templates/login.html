@@ -1,0 +1,25 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="wrapper">
+    <h1>Логин</h1>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.email.label }}<br>
+            {{ form.email(size=32) }}<br>
+        </div>
+
+        <div class="form-group">
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}<br>
+        </div>
+
+        <button type="submit">Войти</button>
+    </form>
+    <div class="member">Нет аккаунта?<a href="{{ url_for('register') }}">
+        Зарегистрироваться
+    </a>
+    </div>
+</div>
+{% endblock %}

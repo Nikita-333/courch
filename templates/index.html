@@ -20,7 +20,8 @@
         <li><a href="/"><i class="fa-solid fa-house-user"></i>Главная</a></li>
 <span>{{current_user.nickname}}</span>
         {% if current_user.is_authenticated %}
-
+        <li><a href="/user_images"><i class="fa-solid fa-upload"></i>Выести изображения</a></li>
+        <li><a href="/upload_image"><i class="fa-solid fa-upload"></i>Загрузить изображение</a></li>
             <li><a href="/logout" class="btn">Выйти</a></li>
         {% else %}
             <li><a href="/login" class="btn">Логин</a></li>

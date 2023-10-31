@@ -1,16 +1,22 @@
 import bcrypt
-from flask import Flask, render_template, redirect, url_for, session, flash
+from flask import Flask, render_template, redirect, url_for, session, flash, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql.functions import current_user
+from flask_uploads import configure_uploads
+#from sqlalchemy.sql.functions import current_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_login import LoginManager, login_user, logout_user
-from forms import RegistrationForm, LoginForm
-from model import User, db
+from flask_login import LoginManager, login_user, logout_user, login_required
+from werkzeug.utils import secure_filename
+from flask_login import current_user
+from forms import RegistrationForm, LoginForm, photos, FileUploadForm
+from model import User, db, Image
 import os
 
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['UPLOADED_PHOTOS_DEST'] = '/home/rydyar/cours/cur/uploads'
+configure_uploads(app, photos)
 
 SECRET_KEY = os.urandom(32)
 app.config['SECRET_KEY'] = SECRET_KEY
@@ -20,10 +26,18 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
+
 @app.route('/')
 @app.route('/home')
 def index():
     return render_template('index.html', user=current_user)
+
+@app.route('/user_images')
+@login_required
+def user_images():
+    user_images = Image.query.filter_by(user_id=current_user.id).all()
+    return render_template('image.html', user_images=user_images)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -49,6 +63,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -73,7 +88,29 @@ def logout():
     return redirect(url_for('index'))
 
 
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], filename)
+
+@app.route('/upload_image', methods=['GET', 'POST'])
+@login_required
+def upload_image():
+    form = FileUploadForm()
+    if form.validate_on_submit():
+        if 'file' in request.files:
+            image = request.files['file']
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(app.config['UPLOADED_PHOTOS_DEST'], filename))
+
+            # Save image info in database
+            new_image = Image(user_id=current_user.id, filename=filename)
+            db.session.add(new_image)
+            db.session.commit()
+
+            return 'Image uploaded successfully'
+    return render_template('upload_image.html', form=form)
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
     app.run(debug=True)

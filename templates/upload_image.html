@@ -1,8 +1,10 @@
 {% extends 'index.html' %}
 {% block content %}
-<form action="/upload_image" method="post" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    {{ form.file.label }} {{ form.file() }}
-    {{ form.submit() }}
-</form>
+<div class="centered-form">
+    <form action="/upload_image" method="post" enctype="multipart/form-data" class="form">
+        {{ form.hidden_tag() }}
+        {{ form.file.label }} {{ form.file() }}
+        {{ form.submit() }}
+    </form>
+</div>
 {% endblock %}

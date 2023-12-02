@@ -2,10 +2,29 @@
 
 {% block content %}
 
-    <h1>Your Images</h1>
-    <ul>
+<div class="section text-center">
+    <div class="row">
         {% for image in user_images %}
-            <li><img src="{{ url_for('uploaded_file', filename=image.filename) }}" alt="Image"></li>
+        <div class="col-md-4">
+            <img src="{{ url_for('uploaded_file', filename=image.filename) }}" alt="Original Image">
+            <a href="{{url_for('download_image', filename=image.filename) }}" class="btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-download" viewBox="0 0 16 16">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+            </a>
+           <a href="{{ url_for('improve_image', filename=image.filename) }}" class="btn" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                     class="bi bi-file-image-fill" viewBox="0 0 16 16">
+                    <path d="M4 0h8a2 2 0 0 1 2 2v8.293l-2.73-2.73a1 1 0 0 0-1.52.127l-1.889 2.644-1.769-1.062a1 1 0 0 0-1.222.15L2 12.292V2a2 2 0 0 1 2-2m4.002 5.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
+                    <path d="M10.564 8.27 14 11.708V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-.293l3.578-3.577 2.56 1.536 2.426-3.395z"/>
+                </svg>
+            </a>
+        </div>
+
         {% endfor %}
-    </ul>
+    </div>
+</div>
+
 {% endblock %}

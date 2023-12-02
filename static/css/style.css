@@ -1,5 +1,6 @@
 body{
    background: #2c2c2c;
+   color: white;
 }
 
 
@@ -13,12 +14,6 @@ aside {
    border-right: 5px solid #4d4d4d;
 }
 
-aside img{
-   width: 80px;
-   float:left;
-
-}
-
 aside .logo{
    font-size:40px;
    margin-left: 10px;
@@ -27,16 +22,23 @@ aside .logo{
    top: -5px;
 }
 aside h3{
+    cursor:none;
    margin-top: 50px;
    font-size: 28px;
 }
 aside ul {list-style: none}
 aside ul li {
+   text-decoration: none;
+   cursor:pointer;
    color:#ffffff;
    display: block;
    margin-bottom: 12px;
    margin-top: 10px;
    transition: all 0.6s ease;
+}
+aside ul li a{
+    color: white;
+    text-decoration:none;
 }
 .btn{
     background-color: #f9004d;
@@ -313,4 +315,33 @@ input:focus{
 }
 .task-actions svg:hover{
     transform: scale(1.6);
+}
+.col-md-4 {
+    margin-top: 50px;
+}
+
+.centered-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .centered-form form {
+        max-width: 400px;
+        width: 100%;
+        padding: 30px;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+        background-color: #333333;
+        margin:10px;
+    }
+.centered-form form input[type="submit"]:hover {
+    background-color: #d3e8fb;
+}
+.form input{
+    background-color: #fff;
+    color: black;
+    margin-bottom: 10px;
 }

@@ -1,14 +1,15 @@
-import bcrypt
-from flask import Flask, render_template, redirect, url_for, session, flash, send_from_directory, request
-from flask_sqlalchemy import SQLAlchemy
+import tempfile
+import cv2
+import numpy as np
+from flask import Flask, render_template, redirect, url_for, session, flash, send_from_directory, request, abort
 from flask_uploads import configure_uploads
-#from sqlalchemy.sql.functions import current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from flask_login import current_user
 from forms import RegistrationForm, LoginForm, photos, FileUploadForm
 from model import User, db, Image
+from tensorflow.keras.models import load_model
 import os
 
 app = Flask(__name__, template_folder='templates')
@@ -32,6 +33,7 @@ login_manager.login_message_category = 'info'
 def index():
     return render_template('index.html', user=current_user)
 
+
 @app.route('/user_images')
 @login_required
 def user_images():
@@ -42,6 +44,7 @@ def user_images():
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -83,14 +86,25 @@ def login():
 
 @app.route('/logout')
 def logout():
-    logout_user()  # Выход пользователя из системы
+    logout_user()
     flash('Вы успешно вышли из аккаунта!', 'success')
     return redirect(url_for('index'))
+
+
+@app.route('/download_image/<filename>')
+@login_required
+def download_image(filename):
+    image = Image.query.filter_by(filename=filename, user_id=current_user.id).first()
+    if image is None:
+        abort(404)
+
+    return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], filename, as_attachment=True)
 
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOADED_PHOTOS_DEST'], filename)
+
 
 @app.route('/upload_image', methods=['GET', 'POST'])
 @login_required
@@ -102,13 +116,36 @@ def upload_image():
             filename = secure_filename(image.filename)
             image.save(os.path.join(app.config['UPLOADED_PHOTOS_DEST'], filename))
 
-            # Save image info in database
             new_image = Image(user_id=current_user.id, filename=filename)
             db.session.add(new_image)
             db.session.commit()
 
-            return 'Image uploaded successfully'
     return render_template('upload_image.html', form=form)
+
+
+@app.route('/improve_image/<filename>', methods=['GET', 'POST'])
+@login_required
+def improve_image(filename):
+    model = load_model('final_model.h5')
+
+    original_image = Image.query.filter_by(filename=filename, user_id=current_user.id).first()
+
+    img = cv2.imread(os.path.join(app.config['UPLOADED_PHOTOS_DEST'], original_image.filename), 1)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    SIZE = 256
+    img = cv2.resize(img, (SIZE, SIZE))
+    img = img.astype('float32') / 255.0
+
+    predicted = model.predict(img.reshape(1, SIZE, SIZE, 3))
+    predicted = np.clip(predicted, 0.0, 1.0).reshape(SIZE, SIZE, 3)
+    predicted = (predicted * 255).astype('uint8')
+
+    temp_filename = tempfile.mktemp(suffix='.png')
+    cv2.imwrite(temp_filename, predicted)
+
+    return send_from_directory(os.path.dirname(temp_filename), os.path.basename(temp_filename), as_attachment=True)
+
 
 if __name__ == '__main__':
     # with app.app_context():

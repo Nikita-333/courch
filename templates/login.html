@@ -7,12 +7,12 @@
         {{ form.hidden_tag() }}
         <div class="form-group">
             {{ form.email.label }}<br>
-            {{ form.email(size=32) }}<br>
+            {{ form.email(size=32, placeholder='Email') }}<br>
         </div>
 
         <div class="form-group">
             {{ form.password.label }}<br>
-            {{ form.password(size=32) }}<br>
+            {{ form.password(size=32, placeholder='Password') }}<br>
         </div>
 
         <button type="submit">Войти</button>
